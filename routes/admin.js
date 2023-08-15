@@ -19,9 +19,11 @@ router.post(
       .isLength({ min: 5, max: 400 })
       .trim()
       .withMessage('Content must be at least 5 characters long.'),
+    body('price').isInt().withMessage('Price must be a number.'),
   ],
   isAuth,
   adminController.postAddProduct,
 );
+router.delete('/product/:productId', isAuth, adminController.deleteProduct);
 
 module.exports = router;

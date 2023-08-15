@@ -31,7 +31,7 @@ exports.getProducts = async (req, res, next) => {
 };
 
 exports.postAddProduct = async (req, res, next) => {
-  const { title, content } = req.body;
+  const { title, content, price } = req.body;
   const errors = validationResult(req);
   try {
     if (!errors.isEmpty()) {
@@ -43,6 +43,7 @@ exports.postAddProduct = async (req, res, next) => {
     const product = new Product({
       title,
       content,
+      price,
       userId: req.userId,
       creater,
     });
@@ -54,6 +55,30 @@ exports.postAddProduct = async (req, res, next) => {
       message: 'product created',
       product,
     });
+  } catch (err) {
+    if (!err.statusCode) err.statusCode = 500;
+    next(err);
+  }
+};
+
+exports.deleteProduct = async (req, res, next) => {
+  try {
+    if (!req.params.productId) {
+      const error = new Error('No product id found');
+      error.statusCode = 422;
+      throw error;
+    }
+    if (!req.userId) {
+      const error = new Error('Not authenticated');
+      error.statusCode = 401;
+      throw error;
+    }
+    await User.findByIdAndUpdate(req.userId, {
+      $pull: { products: req.params.id },
+    });
+
+    await Product.findByIdAndRemove(req.params.productId);
+    res.status(200).json({ message: 'product deleted' });
   } catch (err) {
     if (!err.statusCode) err.statusCode = 500;
     next(err);

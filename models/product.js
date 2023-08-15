@@ -10,6 +10,7 @@ const productSchema = new Schema(
       ref: 'User',
       required: true,
     },
+    price: { type: Number, required: true },
     creater: { type: String, required: true },
   },
   { timestamps: true },
